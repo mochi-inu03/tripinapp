@@ -1,24 +1,51 @@
-# README
+# DB 設計
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## users table
 
-Things you may want to cover:
+| Column             | Type   | Options                   |
+|--------------------|--------|---------------------------|
+| nickname           | string | null: false               |
+| email              | string | null: false, unique: true |
+| encrypted_password | string | null: false               |
+| birthday           | date   | null: false               |
 
-* Ruby version
+### Association
 
-* System dependencies
+- has_many :spots  
+- has_many :comments
 
-* Configuration
+---
 
-* Database creation
+## spots table
 
-* Database initialization
+| Column      | Type       | Options                        |
+|-------------|------------|--------------------------------|
+| user        | references | null: false, foreign_key: true |
+| title       | string     | null: false                    |
+| description | text       | null: false                    |
+| image       | string     | null: false                    |
+| address     | string     |                                |
+| latitude    | float      |                                |
+| longitude   | float      |                                |
+| category_id | integer    | null: false                    |
 
-* How to run the test suite
+### Association
 
-* Services (job queues, cache servers, search engines, etc.)
+- belongs_to :user  
+- has_many :comments
 
-* Deployment instructions
+---
 
-* ...
+## comments table
+
+| Column     | Type       | Options                        |
+|------------|------------|--------------------------------|
+| spot       | references | null: false, foreign_key: true |
+| user       | references | null: false, foreign_key: true |
+| content    | text       | null: false                    |
+| created_at | datetime   | null: false                    |
+
+### Association
+
+- belongs_to :user  
+- belongs_to :spot
