@@ -1,47 +1,47 @@
 <%= form_with model: @spot, local: true do |f| %>
 
-  <!-- 🔽 ① 住所検索欄（Autocomplete Service 使用） -->
+  <!-- ① 住所検索 -->
   <div style="margin-bottom: 10px;">
     <label for="address-input">📍 住所検索</label><br>
     <input id="address-input" type="text" placeholder="例: 東京駅" style="width: 300px; padding: 5px;">
   </div>
 
-  <!-- 🔽 緯度・経度 hidden_field（DB保存用） -->
+  <!-- 緯度・経度 hidden_field -->
   <%= f.hidden_field :latitude, id: 'latitude' %>
   <%= f.hidden_field :longitude, id: 'longitude' %>
 
-  <!-- 🔽 ② タイトル -->
+  <!-- ② タイトル -->
   <div style="margin-bottom: 10px;">
     <%= f.label :title %><br>
     <%= f.text_field :title, style: "width: 300px; padding: 5px;" %>
   </div>
 
-  <!-- 🔽 ③ 説明 -->
+  <!-- ③ 説明 -->
   <div style="margin-bottom: 10px;">
     <%= f.label :description %><br>
     <%= f.text_area :description, rows: 4, style: "width: 300px; padding: 5px;" %>
   </div>
 
-  <!-- 🔽 ④ 画像 -->
+  <!-- ④ 画像 -->
   <div style="margin-bottom: 10px;">
     <%= f.label :image %><br>
     <%= f.file_field :image %>
   </div>
 
-  <!-- 🔽 ⑤ カテゴリ -->
+  <!-- ⑤ カテゴリ -->
   <div style="margin-bottom: 10px;">
     <%= f.label :category_id, "カテゴリ" %><br>
     <%= f.collection_select :category_id, Category.all, :id, :name, prompt: '選択してください' %>
   </div>
 
-  <!-- 🔽 ⑥ Google Map -->
+  <!-- ⑥ Google Map -->
   <div id="map" style="height: 400px; margin-bottom: 10px; border: 1px solid #ccc;"></div>
 
-  <!-- 🔽 ⑦ 情報パネル（写真＋住所＋名前＋営業時間＋電話＋Web） -->
-  <div id="info-panel" style="padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; margin-bottom: 20px;">
+  <!-- ⑦ 情報パネル -->
+  <div id="info-panel">
     <strong>検索結果:</strong><br>
 
-    <!-- 写真表示 -->
+    <!-- 写真 -->
     <div id="info-photo" style="margin-bottom: 10px;">
       <img id="place-photo" src="" alt="場所の写真" style="max-width: 100%; display: none;">
     </div>
@@ -62,12 +62,15 @@
     <div id="info-website" style="margin-bottom: 5px;">Webサイト: 未取得</div>
   </div>
 
-  <!-- 🔽 ⑧ 投稿ボタン -->
+  <!-- 投稿ボタン -->
   <%= f.submit "投稿する", style: "padding: 10px 20px; font-size: 16px;" %>
 
 <% end %>
 
-<!-- 🔽 JS部分 -->
+<!-- Google Maps JS API 読み込み -->
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initMap&libraries=places" async defer></script>
+
+<!-- カスタムJS（下に入れてOK） -->
 <script>
   let map;
   let marker;
@@ -75,7 +78,7 @@
   let placesService;
 
   function initMap() {
-    const initialPosition = { lat: 35.6803997, lng: 139.7690174 }; // 東京
+    const initialPosition = { lat: 35.6803997, lng: 139.7690174 };
     map = new google.maps.Map(document.getElementById('map'), {
       center: initialPosition,
       zoom: 10
@@ -86,7 +89,7 @@
       position: initialPosition
     });
 
-    // Autocomplete Service 設定
+    // Autocomplete Service
     const input = document.getElementById('address-input');
     autocomplete = new google.maps.places.Autocomplete(input, {
       fields: [
@@ -101,7 +104,6 @@
       ]
     });
 
-    // Places Service 初期化
     placesService = new google.maps.places.PlacesService(map);
 
     // place_changed イベント
@@ -114,26 +116,30 @@
       }
 
       const location = place.geometry.location;
-
-      // マップとピン更新
       map.setCenter(location);
       marker.setPosition(location);
 
-      // 緯度・経度をフォームにセット（DB保存用）
       document.getElementById('latitude').value = location.lat();
       document.getElementById('longitude').value = location.lng();
 
-      // スポット名
       document.getElementById('info-name').textContent = '名前: ' + (place.name || '未取得');
-
-      // 住所
       document.getElementById('info-address').textContent = '住所: ' + (place.formatted_address || '未取得');
 
       // 営業時間
       if (place.opening_hours && place.opening_hours.weekday_text) {
-        document.getElementById('info-hours').textContent = '営業時間: ' + place.opening_hours.weekday_text.join(', ');
+        const formattedHours = place.opening_hours.weekday_text.map(dayText => {
+          const dayOfWeek = dayText.substring(0, 1);
+          let dayClass = '';
+          if (['土', '日'].includes(dayOfWeek)) {
+            dayClass = 'weekend';
+          } else {
+            dayClass = 'weekday';
+          }
+          return `<div class="hours-line ${dayClass}">${dayText}</div>`;
+        }).join('');
+        document.getElementById('info-hours').innerHTML = '<strong>営業時間:</strong><div class="hours-card">' + formattedHours + '</div>';
       } else {
-        document.getElementById('info-hours').textContent = '営業時間: 未取得';
+        document.getElementById('info-hours').innerHTML = '<strong>営業時間:</strong> 未取得';
       }
 
       // 電話番号
@@ -164,6 +170,3 @@
     });
   }
 </script>
-
-<!-- Google Maps JS API 読み込み -->
-<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initMap&libraries=places" async defer></script>

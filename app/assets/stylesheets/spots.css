@@ -1,0 +1,144 @@
+body {
+  background: linear-gradient(120deg, #e0f7fa, #ffffff);
+  font-family: 'Rounded Mplus 1c', 'Arial', sans-serif;
+  color: #333;
+}
+
+/* --- フォーム全体 --- */
+form {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 16px;
+  border: 2px solid #81d4fa;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(129, 212, 250, 0.3);
+}
+
+/* --- 各入力エリア --- */
+form div {
+  margin-bottom: 20px;
+}
+
+/* --- ラベル --- */
+form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #0288d1;
+  font-size: 15px;
+}
+
+/* --- テキストフィールド、テキストエリア、セレクトボックス --- */
+form input[type="text"],
+form textarea,
+form select,
+#address-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+form input[type="text"]:focus,
+form textarea:focus,
+form select:focus,
+#address-input:focus {
+  border-color: #4fc3f7;
+  box-shadow: 0 0 5px rgba(79, 195, 247, 0.4);
+}
+
+/* --- ファイルフィールド --- */
+form input[type="file"] {
+  border: none;
+  padding: 5px;
+  font-size: 14px;
+}
+
+/* --- 地図 --- */
+#map {
+  height: 400px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+/* --- 情報パネル --- */
+#info-panel {
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #81d4fa;
+  background-color: #e1f5fe;
+  font-size: 15px;
+  color: #444;
+  box-shadow: 0 4px 10px rgba(129, 212, 250, 0.2);
+}
+
+#info-panel strong {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 17px;
+  color: #0288d1;
+}
+
+#info-panel img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* --- 営業時間パネル --- */
+#info-hours {
+  margin-top: 12px;
+  font-family: 'Rounded Mplus 1c', 'Arial', sans-serif;
+}
+
+.hours-card {
+  background-color: #e0f7fa;
+  border: 1px solid #b3e5fc;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+/* 各行 */
+.hours-line {
+  margin-bottom: 6px;
+  padding-left: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.hours-line.weekday {
+  color: #0277bd; /* 濃い青 */
+  background-color: #bbdefb;
+}
+
+.hours-line.weekend {
+  color: #d84315; /* オレンジ系 */
+  background-color: #ffe0b2;
+}
+
+/* --- 投稿ボタン --- */
+form input[type="submit"] {
+  display: block;
+  margin: 25px auto 0 auto;
+  background-color: #0288d1;
+  color: white;
+  border: none;
+  padding: 16px 36px;
+  font-size: 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+form input[type="submit"]:hover {
+  background-color: #0277bd;
+  transform: translateY(-3px);
+}
