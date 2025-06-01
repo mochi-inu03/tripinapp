@@ -1,23 +1,172 @@
 <%= form_with model: @spot, local: true do |f| %>
-  <div>
-    <%= f.label :title %>
-    <%= f.text_field :title %>
+
+  <!-- ① 住所検索 -->
+  <div style="margin-bottom: 10px;">
+    <label for="address-input">📍 住所検索</label><br>
+    <input id="address-input" type="text" placeholder="例: 東京駅" style="width: 300px; padding: 5px;">
   </div>
 
-  <div>
-    <%= f.label :description %>
-    <%= f.text_area :description %>
+  <!-- 緯度・経度 hidden_field -->
+  <%= f.hidden_field :latitude, id: 'latitude' %>
+  <%= f.hidden_field :longitude, id: 'longitude' %>
+
+  <!-- ② タイトル -->
+  <div style="margin-bottom: 10px;">
+    <%= f.label :title %><br>
+    <%= f.text_field :title, style: "width: 300px; padding: 5px;" %>
   </div>
 
-  <div>
-    <%= f.label :image %>
+  <!-- ③ 説明 -->
+  <div style="margin-bottom: 10px;">
+    <%= f.label :description %><br>
+    <%= f.text_area :description, rows: 4, style: "width: 300px; padding: 5px;" %>
+  </div>
+
+  <!-- ④ 画像 -->
+  <div style="margin-bottom: 10px;">
+    <%= f.label :image %><br>
     <%= f.file_field :image %>
   </div>
 
-  <div>
-    <%= f.label :category_id, "カテゴリ" %>
+  <!-- ⑤ カテゴリ -->
+  <div style="margin-bottom: 10px;">
+    <%= f.label :category_id, "カテゴリ" %><br>
     <%= f.collection_select :category_id, Category.all, :id, :name, prompt: '選択してください' %>
   </div>
 
-  <%= f.submit "投稿する" %>
+  <!-- ⑥ Google Map -->
+  <div id="map" style="height: 400px; margin-bottom: 10px; border: 1px solid #ccc;"></div>
+
+  <!-- ⑦ 情報パネル -->
+  <div id="info-panel">
+    <strong>検索結果:</strong><br>
+
+    <!-- 写真 -->
+    <div id="info-photo" style="margin-bottom: 10px;">
+      <img id="place-photo" src="" alt="場所の写真" style="max-width: 100%; display: none;">
+    </div>
+
+    <!-- スポット名 -->
+    <div id="info-name" style="margin-bottom: 5px;">名前: 未選択</div>
+
+    <!-- 住所 -->
+    <div id="info-address" style="margin-bottom: 5px;">住所: 未選択</div>
+
+    <!-- 営業時間 -->
+    <div id="info-hours" style="margin-bottom: 5px;">営業時間: 未取得</div>
+
+    <!-- 電話番号 -->
+    <div id="info-phone" style="margin-bottom: 5px;">電話番号: 未取得</div>
+
+    <!-- Webサイト -->
+    <div id="info-website" style="margin-bottom: 5px;">Webサイト: 未取得</div>
+  </div>
+
+  <!-- 投稿ボタン -->
+  <%= f.submit "投稿する", style: "padding: 10px 20px; font-size: 16px;" %>
+
 <% end %>
+
+<!-- Google Maps JS API 読み込み -->
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initMap&libraries=places" async defer></script>
+
+<!-- カスタムJS（下に入れてOK） -->
+<script>
+  let map;
+  let marker;
+  let autocomplete;
+  let placesService;
+
+  function initMap() {
+    const initialPosition = { lat: 35.6803997, lng: 139.7690174 };
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: initialPosition,
+      zoom: 10
+    });
+
+    marker = new google.maps.Marker({
+      map: map,
+      position: initialPosition
+    });
+
+    // Autocomplete Service
+    const input = document.getElementById('address-input');
+    autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: [
+        'geometry',
+        'formatted_address',
+        'place_id',
+        'photos',
+        'name',
+        'opening_hours',
+        'formatted_phone_number',
+        'website'
+      ]
+    });
+
+    placesService = new google.maps.places.PlacesService(map);
+
+    // place_changed イベント
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+
+      if (!place.geometry || !place.geometry.location) {
+        alert('場所の情報が取得できませんでした');
+        return;
+      }
+
+      const location = place.geometry.location;
+      map.setCenter(location);
+      marker.setPosition(location);
+
+      document.getElementById('latitude').value = location.lat();
+      document.getElementById('longitude').value = location.lng();
+
+      document.getElementById('info-name').textContent = '名前: ' + (place.name || '未取得');
+      document.getElementById('info-address').textContent = '住所: ' + (place.formatted_address || '未取得');
+
+      // 営業時間
+      if (place.opening_hours && place.opening_hours.weekday_text) {
+        const formattedHours = place.opening_hours.weekday_text.map(dayText => {
+          const dayOfWeek = dayText.substring(0, 1);
+          let dayClass = '';
+          if (['土', '日'].includes(dayOfWeek)) {
+            dayClass = 'weekend';
+          } else {
+            dayClass = 'weekday';
+          }
+          return `<div class="hours-line ${dayClass}">${dayText}</div>`;
+        }).join('');
+        document.getElementById('info-hours').innerHTML = '<strong>営業時間:</strong><div class="hours-card">' + formattedHours + '</div>';
+      } else {
+        document.getElementById('info-hours').innerHTML = '<strong>営業時間:</strong> 未取得';
+      }
+
+      // 電話番号
+      if (place.formatted_phone_number) {
+        document.getElementById('info-phone').textContent = '電話番号: ' + place.formatted_phone_number;
+      } else {
+        document.getElementById('info-phone').textContent = '電話番号: 未取得';
+      }
+
+      // Webサイト
+      if (place.website) {
+        document.getElementById('info-website').innerHTML = 'Webサイト: <a href="' + place.website + '" target="_blank">' + place.website + '</a>';
+      } else {
+        document.getElementById('info-website').textContent = 'Webサイト: 未取得';
+      }
+
+      // 写真
+      if (place.photos && place.photos.length > 0) {
+        const photoUrl = place.photos[0].getUrl({ maxWidth: 400 });
+        const photoElement = document.getElementById('place-photo');
+        photoElement.src = photoUrl;
+        photoElement.style.display = 'block';
+      } else {
+        const photoElement = document.getElementById('place-photo');
+        photoElement.src = '';
+        photoElement.style.display = 'none';
+      }
+    });
+  }
+</script>
