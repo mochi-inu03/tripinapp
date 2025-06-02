@@ -1,5 +1,10 @@
 class SpotsController < ApplicationController
+  def index
+    @spots = Spot.order(created_at: :desc) 
 
+    @categories = Category.all 
+  end
+  
   def new
     @spot = Spot.new
   end
@@ -12,7 +17,7 @@ class SpotsController < ApplicationController
       render :new
     end
   end
-  
+
   private
 
   def spot_params

@@ -1,0 +1,83 @@
+<h1 style="text-align: center; margin-top: 30px; color: #0288d1;">みんなのスポット一覧</h1>
+
+<!-- 地図エリア -->
+<div id="spot-map" style="width: 100%; height: 400px; margin-bottom: 30px; border: 1px solid #ccc;"></div>
+
+<!-- カテゴリタブ -->
+<div class="category-tabs">
+  <%= link_to "全て", spots_path, class: "category-tab" %>
+  <% @categories.each do |category| %>
+    <% next if category.id == 1 %>
+    <%= link_to category.name, spots_path(category_id: category.id), class: "category-tab" %>
+  <% end %>
+</div>
+
+<!-- 一覧カード -->
+<div class="spot-list">
+  <% @spots.each do |spot| %>
+    <div class="spot-card">
+      <% if spot.image.attached? %>
+        <div class="spot-image">
+          <%= image_tag spot.image, alt: spot.title %>
+        </div>
+      <% end %>
+
+      <h2><%= spot.title %></h2>
+
+      <p class="spot-posted-date"> 投稿日: <%= spot.created_at.strftime("%Y年%m月%d日") %></p>
+      <p class="spot-user">投稿者: <%= spot.user.nickname %></p>
+
+      <p><%= truncate(spot.description, length: 100) %></p>
+
+      <% if spot.latitude.present? && spot.longitude.present? %>
+        <p>
+          <a href="https://www.google.com/maps?q=<%= spot.latitude %>,<%= spot.longitude %>" target="_blank">
+            📍 <%= spot.address %>
+          </a>
+        </p>
+      <% else %>
+        <p>📍 <%= spot.address %></p>
+      <% end %>
+
+      <% if spot.category_id != 1 %>
+        <p>カテゴリ: <%= Category.find(spot.category_id).name %></p>
+      <% end %>
+
+      <p>
+        <%# link_to "▶ 詳細を見る", spot_path(spot), class: "spot-detail-link" %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<!-- Google Maps API 読み込み -->
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initSpotMap" async defer></script>
+
+<!-- 地図用JS -->
+<script>
+  function initSpotMap() {
+    const map = new google.maps.Map(document.getElementById('spot-map'), {
+      center: { lat: 35.6803997, lng: 139.7690174 }, // 東京中心
+      zoom: 10
+    });
+
+
+    const spots = <%= raw @spots.map { |spot| {
+      title: spot.title,
+      latitude: spot.latitude,
+      longitude: spot.longitude,
+      address: spot.address
+    }}.to_json %>;
+
+    // ピン
+    spots.forEach(spot => {
+      if (spot.latitude && spot.longitude) {
+        new google.maps.Marker({
+          position: { lat: spot.latitude, lng: spot.longitude },
+          map: map,
+          title: spot.title
+        });
+      }
+    });
+  }
+</script>
