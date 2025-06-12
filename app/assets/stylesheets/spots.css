@@ -105,7 +105,7 @@ body {
   margin: 10px;
   padding: 8px 16px;
   border-radius: 20px;
-  background-color: #0288d1;
+  background-color: #c6ebff;
   color: white;
   text-align: center;
   text-decoration: none;
@@ -137,4 +137,14 @@ body {
 .floating-new-spot-button:hover {
   background-color: #0277bd;
   transform: scale(1.1);
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
 }
