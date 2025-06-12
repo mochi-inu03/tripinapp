@@ -1,0 +1,40 @@
+<h1 style="color: #0288d1; text-align: center;"><%= @spot.title %></h1>
+
+<!-- 画像 -->
+<% if @spot.image.attached? %>
+  <div style="margin-bottom: 20px; text-align: center;">
+    <%= image_tag @spot.image, style: "max-width: 90%; height: auto; border-radius: 12px;" %>
+  </div>
+<% end %>
+
+<!-- 投稿日・投稿者 -->
+<div style="text-align: center; color: #777; margin-bottom: 10px;">
+  🗓 <%= @spot.created_at.strftime("%Y年%m月%d日") %>　
+  👤 <%= @spot.user.nickname %>
+</div>
+
+<!-- 説明 -->
+<p style="padding: 0 20px; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+  <%= simple_format(@spot.description) %>
+</p>
+
+<!-- 住所 -->
+<% if @spot.latitude.present? && @spot.longitude.present? %>
+  <p style="text-align: center; margin-bottom: 10px;">
+    📍 <a href="https://www.google.com/maps?q=<%= @spot.latitude %>,<%= @spot.longitude %>" target="_blank">
+      <%= @spot.address %>
+    </a>
+  </p>
+<% else %>
+  <p style="text-align: center;">📍 <%= @spot.address %></p>
+<% end %>
+
+<!-- カテゴリ -->
+<% if @spot.category_id != 1 %>
+  <p style="text-align: center;">📂 カテゴリ: <%= Category.find(@spot.category_id).name %></p>
+<% end %>
+
+<!-- 戻るボタン -->
+<div style="text-align: center; margin-top: 40px;">
+  <%= link_to "← 一覧に戻る", spots_path, class: "spot-detail-link", style: "color: #0288d1; text-decoration: none;" %>
+</div>
