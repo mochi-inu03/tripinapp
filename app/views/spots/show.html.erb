@@ -39,6 +39,12 @@
   <%= link_to "← 一覧に戻る", spots_path, class: "spot-detail-link", style: "color: #0288d1; text-decoration: none;" %>
 </div>
 
+<div class="button-group">
 <% if @spot.user == current_user %>
   <%= button_to '削除する', spot_path(@spot), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'delete-button' %>
 <% end %>
+
+<% if @spot.user == current_user %>
+  <%= link_to '編集する', edit_spot_path(@spot), class: 'edit-button' %>
+<% end %>
+</div>

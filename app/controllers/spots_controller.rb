@@ -32,6 +32,20 @@ class SpotsController < ApplicationController
     end
   end
 
+  def edit
+    @spot = Spot.find(params[:id])
+    redirect_to spots_path, alert: "編集する権限がありません" unless @spot.user == current_user
+  end
+  
+  def update
+    @spot = Spot.find(params[:id])
+    if @spot.user == current_user && @spot.update(spot_params)
+      redirect_to spot_path(@spot), notice: "スポットを更新しました"
+    else
+      render :edit, alert: "更新できませんでした"
+    end
+  end
+  
   private
 
   def spot_params
