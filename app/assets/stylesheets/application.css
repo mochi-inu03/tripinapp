@@ -13,3 +13,12 @@
  *= require_tree .
  *= require_self
  */
+
+ .logout-button {
+  background-color: #f33;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}

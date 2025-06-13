@@ -8,9 +8,24 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <script src="https://cdn.jsdelivr.net/npm/@rails/ujs@6.1.4/lib/assets/compiled/rails-ujs.js"></script>
+    <script>
+      Rails.start()
+    </script>
   </head>
 
   <body>
+      <header>
+    <% if user_signed_in? %>
+      <p>こんにちは、<%= current_user.nickname %>さん！</p>
+      <%= button_to 'ログアウト', destroy_user_session_path, method: :delete, class: "logout-button"  %>
+    <% else %>
+      <%= link_to 'ログイン', new_user_session_path %> |
+      <%= link_to '新規登録', new_user_registration_path %>
+    <% end %>
+  </header>
+
     <%= yield %>
   </body>
 </html>

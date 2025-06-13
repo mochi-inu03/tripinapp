@@ -45,10 +45,10 @@ class SpotsController < ApplicationController
       render :edit, alert: "更新できませんでした"
     end
   end
-  
+
   private
 
   def spot_params
-    params.require(:spot).permit(:title, :description, :image, :category_id)
+    params.require(:spot).permit(:title, :description, :image, :category_id, :latitude, :longitude)
   end
 end
