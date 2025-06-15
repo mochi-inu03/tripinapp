@@ -63,7 +63,7 @@
 <% end %>
 
 <!-- Google Maps JS API 読み込み -->
-<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initMap&libraries=places" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= Rails.application.credentials.dig(:google_maps, :api_key) %>&callback=initMap&libraries=places" async defer></script>
 
 <script>
   let map;
@@ -89,10 +89,7 @@
 
     const input = document.getElementById('address-input');
     autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: [
-        'geometry', 'formatted_address', 'place_id', 'photos', 'name',
-        'opening_hours', 'formatted_phone_number', 'website'
-      ]
+      fields: ['geometry', 'formatted_address', 'place_id', 'photos', 'name', 'opening_hours', 'formatted_phone_number', 'website']
     });
 
     placesService = new google.maps.places.PlacesService(map);
@@ -118,7 +115,7 @@
       if (place.opening_hours && place.opening_hours.weekday_text) {
         const formattedHours = place.opening_hours.weekday_text.map(dayText => {
           const dayOfWeek = dayText.substring(0, 1);
-          let dayClass = ['土', '日'].includes(dayOfWeek) ? 'weekend' : 'weekday';
+          const dayClass = ['土', '日'].includes(dayOfWeek) ? 'weekend' : 'weekday';
           return `<div class="hours-line ${dayClass}">${dayText}</div>`;
         }).join('');
         document.getElementById('info-hours').innerHTML = '<strong>営業時間:</strong><div class="hours-card">' + formattedHours + '</div>';

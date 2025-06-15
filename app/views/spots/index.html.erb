@@ -51,16 +51,18 @@
 </div>
 
 <!-- Google Maps API 読み込み -->
-<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initSpotMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= Rails.application.credentials.dig(:google_maps, :api_key) %>&callback=initSpotMap" async defer></script>
 
 <!-- 地図用JS -->
 <script>
   function initSpotMap() {
-    const map = new google.maps.Map(document.getElementById('spot-map'), {
+    const mapElement = document.getElementById('spot-map');
+    if (!mapElement) return;
+
+    const map = new google.maps.Map(mapElement, {
       center: { lat: 35.6803997, lng: 139.7690174 }, // 東京中心
       zoom: 10
     });
-
 
     const spots = <%= raw @spots.map { |spot| {
       title: spot.title,
@@ -69,7 +71,6 @@
       address: spot.address
     }}.to_json %>;
 
-    // ピン
     spots.forEach(spot => {
       if (spot.latitude && spot.longitude) {
         new google.maps.Marker({
